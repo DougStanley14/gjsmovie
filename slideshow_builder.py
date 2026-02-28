@@ -378,8 +378,9 @@ def apply_ken_burns(image_array: np.ndarray, duration: float, fps: int,
 def load_and_prepare_image(photo_path: Path, target_w: int, target_h: int,
                            intensity_name: str) -> np.ndarray:
     """
-    Load an image and resize it to cover the target resolution with extra
-    margin for Ken Burns motion (so the effect never reveals black bars).
+    Load an image and scale it to fit the target resolution. Fill the
+    remaining letterbox/pillarbox space with a blurred, darkened version
+    of the same image, with extra margin for Ken Burns motion.
     """
     travel = KEN_BURNS_INTENSITIES.get(intensity_name, 0.12)
     # Oversize factor: add enough margin so the full travel range fits
@@ -397,20 +398,38 @@ def load_and_prepare_image(photo_path: Path, target_w: int, target_h: int,
     except Exception:
         pass
 
-    # Cover-mode resize: scale so the image fully covers desired_w x desired_h,
-    # then centre-crop to exactly desired_w x desired_h.
+    from PIL import ImageFilter, ImageEnhance
+
     iw, ih = img.size
-    scale = max(desired_w / iw, desired_h / ih)
-    new_w = int(iw * scale)
-    new_h = int(ih * scale)
-    img = img.resize((new_w, new_h), Image.LANCZOS)
 
-    # Centre crop
-    left = (new_w - desired_w) // 2
-    top = (new_h - desired_h) // 2
-    img = img.crop((left, top, left + desired_w, top + desired_h))
+    # 1. Create the blurred background (cover mode)
+    bg_scale = max(desired_w / iw, desired_h / ih)
+    bg_w = int(iw * bg_scale)
+    bg_h = int(ih * bg_scale)
+    bg_img = img.resize((bg_w, bg_h), Image.LANCZOS)
 
-    return np.array(img)
+    # Centre crop the background
+    left = (bg_w - desired_w) // 2
+    top = (bg_h - desired_h) // 2
+    bg_img = bg_img.crop((left, top, left + desired_w, top + desired_h))
+
+    # Apply heavy blur and darken slightly
+    bg_img = bg_img.filter(ImageFilter.GaussianBlur(radius=40))
+    enhancer = ImageEnhance.Brightness(bg_img)
+    bg_img = enhancer.enhance(0.5)  # Darken to 50% for better contrast
+
+    # 2. Create the foreground (fit mode)
+    fg_scale = min(desired_w / iw, desired_h / ih)
+    fg_w = int(iw * fg_scale)
+    fg_h = int(ih * fg_scale)
+    fg_img = img.resize((fg_w, fg_h), Image.LANCZOS)
+
+    # 3. Composite foreground over blurred background
+    paste_x = (desired_w - fg_w) // 2
+    paste_y = (desired_h - fg_h) // 2
+    bg_img.paste(fg_img, (paste_x, paste_y))
+
+    return np.array(bg_img)
 
 
 # ---------------------------------------------------------------------------
