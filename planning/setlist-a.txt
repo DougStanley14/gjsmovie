@@ -1,0 +1,42 @@
+GJS CELEBRATION OF LIFE — SETLIST A
+=====================================
+Swap applied:  Track 6  CCR "Have You Ever Seen The Rain?" (2:40)
+               → Genesis "I Know What I Like (In Your Wardrobe)" (4:06)
+Time delta:    +1:26
+Total Runtime: 61:28
+Target:        59:00–61:30  ✓
+
+Rationale: Genesis was a stated core favorite with no representation in the base set.
+"I Know What I Like (In Your Wardrobe)" (Selling England by the Pound, 1973) is their
+most playful, accessible track — joyful and quirky without being abrasive — and slots
+naturally into the early-mid energy ramp. The CCR emotional register (bittersweet rain/sun)
+is still covered by the overall arc.
+
+ # | Artist                        | Song                                              | Year | Duration | Energy | Moment   | Why it fits
+---|-------------------------------|---------------------------------------------------|------|----------|--------|----------|----------------------------------------------------------------------
+ 1 | The Beatles                   | Here Comes The Sun                                | 1969 |  3:06   |   2    | Open     | Warmth breaking through clouds; the gentlest possible invitation to gather and remember joy.
+ 2 | Supertramp                    | Give A Little Bit                                 | 1977 |  4:09   |   2    | Open     | An open-armed invitation to share love and community — sets the spirit of the entire room.
+ 3 | Neil Young                    | Heart of Gold                                     | 1972 |  3:07   |   2    | Open     | His most iconic searching ballad honors a life lived in genuine pursuit of what matters.
+ 4 | Van Morrison                  | Into The Mystic                                   | 1970 |  3:30   |   2    | Open     | "Born before the wind, sailing into the mystic" — a free spirit returning to something greater.
+ 5 | Cream                         | Sunshine Of Your Love                             | 1967 |  4:12   |   4    | Mid      | Clapton's immortal riff kicks the room into high gear, honoring one of Greg's core favorites.
+ 6 | Genesis                       | I Know What I Like (In Your Wardrobe)             | 1973 |  4:06   |   3    | Mid      | *** SWAPPED IN *** Quirky, joyful prog marks Genesis's presence — a core favorite finally on the floor.
+ 7 | Tom Petty                     | Free Fallin'                                      | 1989 |  4:16   |   3    | Mid      | Pure California sun, surfboards, and open roads — a surfer's anthem of freedom and the endless drift.
+ 8 | The Who                       | Baba O'Riley                                      | 1971 |  5:09   |   5    | Mid      | Pete Townshend's greatest anthem transforms "teenage wasteland" into an athlete's wide-open field.
+ 9 | David Bowie                   | Heroes                                            | 1977 |  3:38   |   4    | Mid      | "We can be heroes, just for one day" — the ultimate defiant tribute to someone who lived fully.
+10 | The Rolling Stones            | Jumpin' Jack Flash                                | 1968 |  3:46   |   5    | Mid      | Visceral, grinning grit — "it's a gas gas gas" celebrates a life lived with fierce, unironic joy.
+11 | The Allman Brothers Band      | Ramblin' Man                                      | 1973 |  4:50   |   4    | Mid      | Born a ramblin' man on the road — the surfer/skier/golfer who never stayed still belongs right here.
+12 | The Band                      | The Weight                                        | 1968 |  4:35   |   3    | Mid      | "Take a load off" — brotherhood, shared burden, and the soul of a community leaning on each other.
+13 | Elvis Costello                | (What's So Funny 'Bout) Peace, Love & Understanding | 1979 |  3:33 |   3    | Mid→Close| A core favorite's most hopeful anthem asks the only question worth asking at a gathering of the human heart.
+14 | Neil Young                    | Long May You Run                                  | 1976 |  3:48   |   2    | Close    | A direct farewell to a trusted companion — "long may you run" — as the set descends toward peace.
+15 | The Rolling Stones            | Wild Horses                                       | 1971 |  5:43   |   1    | Close    | "Wild horses couldn't drag me away" — eternal love and an unbreakable bond, the last word.
+
+RUNNING TOTALS
+--------------
+After  4 tracks (Opening):  13:52
+After 13 tracks (Mid peak): 55:45
+After 15 tracks (Closing):  61:28
+
+SOURCE FILES
+------------
+Track 6 source: music\Genesis\Selling England By the Pound\02 I Know What I Like (In Your Wardr.m4a
+All other durations pulled from: movie-content/music-list-table.txt

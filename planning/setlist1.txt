@@ -1,0 +1,51 @@
+GJS CELEBRATION OF LIFE — BASE SETLIST
+=======================================
+Total Runtime: 60:02
+Target:        59:00–61:30  ✓
+
+ # | Artist                        | Song                                              | Year | Duration | Energy | Moment   | Why it fits
+---|-------------------------------|---------------------------------------------------|------|----------|--------|----------|----------------------------------------------------------------------
+ 1 | The Beatles                   | Here Comes The Sun                                | 1969 |  3:06   |   2    | Open     | Warmth breaking through clouds; the gentlest possible invitation to gather and remember joy.
+ 2 | Supertramp                    | Give A Little Bit                                 | 1977 |  4:09   |   2    | Open     | An open-armed invitation to share love and community — sets the spirit of the entire room.
+ 3 | Neil Young                    | Heart of Gold                                     | 1972 |  3:07   |   2    | Open     | His most iconic searching ballad honors a life lived in genuine pursuit of what matters.
+ 4 | Van Morrison                  | Into The Mystic                                   | 1970 |  3:30   |   2    | Open     | "Born before the wind, sailing into the mystic" — a free spirit returning to something greater.
+ 5 | Cream                         | Sunshine Of Your Love                             | 1967 |  4:12   |   4    | Mid      | Clapton's immortal riff kicks the room into high gear, honoring one of Greg's core favorites.
+ 6 | Creedence Clearwater Revival  | Have You Ever Seen The Rain?                      | 1970 |  2:40   |   3    | Mid      | Bittersweet beauty — something falling while the sun shines mirrors the feeling of loss mid-life's peak.
+ 7 | Tom Petty                     | Free Fallin'                                      | 1989 |  4:16   |   3    | Mid      | Pure California sun, surfboards, and open roads — a surfer's anthem of freedom and the endless drift.
+ 8 | The Who                       | Baba O'Riley                                      | 1971 |  5:09   |   5    | Mid      | Pete Townshend's greatest anthem transforms "teenage wasteland" into an athlete's wide-open field.
+ 9 | David Bowie                   | Heroes                                            | 1977 |  3:38   |   4    | Mid      | "We can be heroes, just for one day" — the ultimate defiant tribute to someone who lived fully.
+10 | The Rolling Stones            | Jumpin' Jack Flash                                | 1968 |  3:46   |   5    | Mid      | Visceral, grinning grit — "it's a gas gas gas" celebrates a life lived with fierce, unironic joy.
+11 | The Allman Brothers Band      | Ramblin' Man                                      | 1973 |  4:50   |   4    | Mid      | Born a ramblin' man on the road — the surfer/skier/golfer who never stayed still belongs right here.
+12 | The Band                      | The Weight                                        | 1968 |  4:35   |   3    | Mid      | "Take a load off" — brotherhood, shared burden, and the soul of a community leaning on each other.
+13 | Elvis Costello                | (What's So Funny 'Bout) Peace, Love & Understanding | 1979 |  3:33 |   3    | Mid→Close| A core favorite's most hopeful anthem asks the only question worth asking at a gathering of the human heart.
+14 | Neil Young                    | Long May You Run                                  | 1976 |  3:48   |   2    | Close    | A direct farewell to a trusted companion — "long may you run" — as the set descends toward peace.
+15 | The Rolling Stones            | Wild Horses                                       | 1971 |  5:43   |   1    | Close    | "Wild horses couldn't drag me away" — eternal love and an unbreakable bond, the last word.
+
+RUNNING TOTALS
+--------------
+After  4 tracks (Opening):  13:52
+After 13 tracks (Mid peak): 54:19
+After 15 tracks (Closing):  60:02
+
+SOURCE FILES
+------------
+All durations pulled from: movie-content/music-list-table.txt
+No estimated durations used.
+
+ARTIST APPEARANCES
+------------------
+Neil Young          2  (Heart of Gold, Long May You Run)
+The Rolling Stones  2  (Jumpin' Jack Flash, Wild Horses)
+All others          1  each
+
+NOTE: Sex Pistols not present in the library.
+      Elvis Costello (1977 new-wave/punk peer, named favorite) serves as closest proxy.
+
+My edits.
+
+Swap creedence clearwater - Long as I can see the light
+Swap tom petty - Free fallin with pink floyd - Wish you were here
+swap jumpin' jack flash with yes i see all good people
+swap elvis costello with beach boys feel flows
+swap allma brothers with eagles peaceful easy feeling
+swap bowie heroes with bowie queen bitch

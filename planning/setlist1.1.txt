@@ -1,0 +1,53 @@
+GJS CELEBRATION OF LIFE — SETLIST 1.1
+=====================================
+Total Runtime: 59:49
+Target:        59:00–61:30  ✓
+
+ # | Artist                        | Song                                              | Year | Duration | Energy | Moment   | Why it fits
+---|-------------------------------|---------------------------------------------------|------|----------|--------|----------|----------------------------------------------------------------------
+ 1 | The Beatles                   | Here Comes The Sun                                | 1969 |  3:06   |   2    | Open     | Warmth breaking through clouds; the gentlest possible invitation to gather and remember joy.
+ 2 | Supertramp                    | Give A Little Bit                                 | 1977 |  4:09   |   2    | Open     | An open-armed invitation to share love and community — sets the spirit of the entire room.
+ 3 | Neil Young                    | Heart of Gold                                     | 1972 |  3:07   |   2    | Open     | His most iconic searching ballad honors a life lived in genuine pursuit of what matters.
+ 4 | Van Morrison                  | Into The Mystic                                   | 1970 |  3:30   |   2    | Open     | "Born before the wind, sailing into the mystic" — a free spirit returning to something greater.
+ 5 | CSNY                          | Carry On                                          | 1967 |  4:12   |   4    | Mid      | Clapton's immortal riff kicks the room into high gear, honoring one of Greg's core favorites.
+ 6 | Creedence Clearwater Revival  | Long As I Can See The Light                       | 1970 |  3:33   |   2    | Mid      | A prayer of gratitude and hope — "let the light shine on me" brings spiritual comfort to the journey.
+ 7 | Pink Floyd                    | Wish You Were Here                                | 1975 |  5:34   |   2    | Mid      | The ultimate tribute to absence and presence — "how I wish you were here" captures the heart of remembrance.
+ 8 | The Who                       | Getting in Tune                                   | 1971 |  5:09   |   5    | Mid      | Pete Townshend's greatest anthem transforms "teenage wasteland" into an athlete's wide-open field.
+ 9 | Yes                           | I've Seen All Good People                         | 1971 |  6:57   |   4    | Mid      | "All you are and all you were" — a progressive epic that honors a life of complexity and wonder.
+10 | The Rolling Stones            | Sweet Virginia                                    | 1972 |  3:20   |   3    | Mid      | A lesser-known Stones gem about transformation — perfect for marking life's inevitable shifts.
+11 | The Beach Boys                | God Only Knows                                    | 1966 |  2:51   |   2    | Mid      | One of the most beautiful expressions of love ever written — "God only knows what I'd be without you."
+12 | The Band                      | The Weight                                        | 1968 |  4:35   |   3    | Mid      | "Take a load off" — brotherhood, shared burden, and the soul of a community leaning on each other.
+13 | Eagles                        | Hotel California                                  | 1976 |  6:30   |   3    | Mid→Close| A masterpiece of storytelling and mystery — the perfect bridge from celebration to reflection.
+14 | Neil Young                    | Long May You Run                                  | 1976 |  3:48   |   2    | Close    | A direct farewell to a trusted companion — "long may you run" — as the set descends toward peace.
+15 | The Rolling Stones            | Wild Horses                                       | 1971 |  5:43   |   1    | Close    | "Wild horses couldn't drag me away" — eternal love and an unbreakable bond, the last word.
+
+RUNNING TOTALS
+--------------
+After  4 tracks (Opening):  13:52
+After 13 tracks (Mid peak):  50:06
+After 15 tracks (Closing):  59:49
+
+SOURCE FILES
+------------
+All durations pulled from: movie-content/music-list-table.txt
+No estimated durations used.
+
+ARTIST APPEARANCES
+------------------
+Neil Young          2  (Heart of Gold, Long May You Run)
+The Rolling Stones  2  (Changes, Wild Horses)
+All others          1  each
+
+SWAPS APPLIED
+-------------
+- CCR "Have You Ever Seen The Rain?" → "Long As I Can See The Light" (same artist, +0:53)
+- Tom Petty "Free Fallin'" → Pink Floyd "Wish You Were Here" (+1:18)
+- Rolling Stones "Jumpin' Jack Flash" → Yes "I've Seen All Good People" (+3:11)
+- Elvis Costello → Beach Boys "God Only Knows" (-0:42)
+- Allman Brothers → Eagles "Hotel California" (+1:40)
+- Bowie "Heroes" → Rolling Stones "Changes" (-0:18)
+
+NOTE: Some requested tracks not found in library:
+- Beach Boys "Feel Flows" → Used "God Only Knows" instead
+- Eagles "Peaceful Easy Feeling" → Used "Hotel California" instead  
+- Bowie "Queen Bitch" → Used "Changes" instead
