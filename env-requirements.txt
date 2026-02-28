@@ -1,0 +1,6 @@
+# Python dependencies for slideshow_builder.py
+# Alternative to requirements.txt - install with: pip install -r env-requirements.txt
+
+moviepy==2.1.1
+numpy>=1.24.0,<2.0.0
+Pillow>=10.0.0,<11.0.0

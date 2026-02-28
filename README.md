@@ -52,6 +52,15 @@ python slideshow_builder.py --setlist custom_setlist.txt
 # Force full rebuild, ignoring cached photo clips
 python slideshow_builder.py --no-cache
 
+# Use GPU (NVIDIA NVENC) for faster encoding
+python slideshow_builder.py --gpu
+
+# Quick test build with only the first 10 photos
+python slideshow_builder.py --limit 10
+
+# Combine flags — fast GPU test build
+python slideshow_builder.py --gpu --limit 10
+
 # Combine flags
 python slideshow_builder.py --dry-run --setlist custom_setlist.txt
 ```
@@ -61,6 +70,8 @@ python slideshow_builder.py --dry-run --setlist custom_setlist.txt
 | `--dry-run` | Preview photo/music lineup and estimated duration without rendering |
 | `--setlist PATH` | Use a custom setlist file instead of `final-setlist.txt` |
 | `--no-cache` | Ignore cached processed photo clips and rebuild from scratch |
+| `--gpu` | Use NVIDIA NVENC GPU acceleration for H.264 encoding (much faster) |
+| `--limit N` | Only use the first N photos — ideal for quick test builds |
 
 ### The Setlist File (`final-setlist.txt`)
 

@@ -629,7 +629,8 @@ def build_audio_track(config: SlideshowConfig, video_duration: float) -> Optiona
 # ---------------------------------------------------------------------------
 # Final Assembly
 # ---------------------------------------------------------------------------
-def build_slideshow(config: SlideshowConfig, use_cache: bool = True):
+def build_slideshow(config: SlideshowConfig, use_cache: bool = True,
+                     use_gpu: bool = False):
     """Full pipeline: photos → crossfade → music → export."""
     settings = config.settings
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
@@ -681,15 +682,44 @@ def build_slideshow(config: SlideshowConfig, use_cache: bool = True):
     logger.info("Output: %s", output_path)
     t0 = time.time()
 
-    video.write_videofile(
-        str(output_path),
-        fps=settings.video_fps,
-        codec="libx264",
-        audio_codec="aac",
-        preset="medium",
-        threads=os.cpu_count() or 4,
-        logger="bar",
-    )
+    encoder_used = "libx264 (CPU)"
+    if use_gpu:
+        logger.info("GPU encoding enabled — trying NVIDIA NVENC H.264")
+        try:
+            video.write_videofile(
+                str(output_path),
+                fps=settings.video_fps,
+                codec="h264_nvenc",
+                audio_codec="aac",
+                ffmpeg_params=["-preset", "p4", "-rc", "vbr",
+                              "-cq", "23", "-b:v", "0"],
+                threads=os.cpu_count() or 4,
+                logger="bar",
+            )
+            encoder_used = "h264_nvenc (GPU)"
+        except (IOError, OSError) as exc:
+            logger.warning("GPU encoding failed: %s", exc)
+            logger.warning("Falling back to CPU encoding (libx264). "
+                           "Update your NVIDIA driver to 551.76+ to enable GPU.")
+            video.write_videofile(
+                str(output_path),
+                fps=settings.video_fps,
+                codec="libx264",
+                audio_codec="aac",
+                preset="medium",
+                threads=os.cpu_count() or 4,
+                logger="bar",
+            )
+    else:
+        video.write_videofile(
+            str(output_path),
+            fps=settings.video_fps,
+            codec="libx264",
+            audio_codec="aac",
+            preset="medium",
+            threads=os.cpu_count() or 4,
+            logger="bar",
+        )
 
     elapsed = time.time() - t0
     logger.info("=" * 60)
@@ -700,6 +730,7 @@ def build_slideshow(config: SlideshowConfig, use_cache: bool = True):
     logger.info("Photos used : %d", len(config.photos))
     logger.info("Music tracks: %d", len(config.music))
     logger.info("Render time : %.1fs (%.1f minutes)", elapsed, elapsed / 60)
+    logger.info("Encoder     : %s", encoder_used)
 
 
 # ---------------------------------------------------------------------------
@@ -798,6 +829,18 @@ def main():
         action="store_true",
         help="Force full rebuild, ignoring cached photo clips"
     )
+    parser.add_argument(
+        "--gpu",
+        action="store_true",
+        help="Use NVIDIA NVENC GPU acceleration for H.264 encoding"
+    )
+    parser.add_argument(
+        "--limit",
+        type=int,
+        default=0,
+        metavar="N",
+        help="Only use the first N photos (for quick test builds)"
+    )
     args = parser.parse_args()
 
     setlist_path = Path(args.setlist)
@@ -806,6 +849,13 @@ def main():
 
     logger.info("Parsing setlist: %s", setlist_path)
     config = parse_setlist(setlist_path)
+
+    # Apply --limit
+    if args.limit > 0 and config.photos:
+        original_count = len(config.photos)
+        config.photos = config.photos[:args.limit]
+        logger.info("--limit %d: using %d of %d photos",
+                    args.limit, len(config.photos), original_count)
 
     # Validate
     if not config.photos:
@@ -828,7 +878,8 @@ def main():
     if args.dry_run:
         dry_run(config)
     else:
-        build_slideshow(config, use_cache=not args.no_cache)
+        build_slideshow(config, use_cache=not args.no_cache,
+                        use_gpu=args.gpu)
 
 
 if __name__ == "__main__":

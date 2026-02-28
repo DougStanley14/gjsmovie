@@ -163,11 +163,23 @@ class MusicEntry:
 4. **Audio Track**: Call `build_audio_track()` and attach if available
 5. **Export**: `write_videofile()` with H.264 video + AAC audio
 
-**Export Parameters**:
+**Export Parameters (CPU mode — default)**:
 - `codec="libx264"`: Standard H.264 video
 - `audio_codec="aac"`: Universal audio codec
 - `preset="medium"`: Balance of speed and quality
 - `threads=os.cpu_count()`: Parallel encoding
+
+**Export Parameters (GPU mode — `--gpu` flag)**:
+- `codec="h264_nvenc"`: NVIDIA NVENC hardware H.264 encoder
+- `audio_codec="aac"`: Universal audio codec
+- `-preset p4`: NVENC preset (balanced speed/quality, range p1–p7)
+- `-rc vbr`: Variable bitrate rate control
+- `-cq 23`: Constant quality level (lower = higher quality, 18–28 typical)
+- `-b:v 0`: Let CQ mode control bitrate (no cap)
+
+NVENC offloads the entire H.264 encoding to the GPU's dedicated encoder chip,
+which is significantly faster than CPU-based libx264 — typically 3–10× speedup
+depending on resolution and GPU generation.
 
 ## Configuration System
 
@@ -212,9 +224,24 @@ class MusicEntry:
 - **Pickle Protocol**: Use `HIGHEST_PROTOCOL` for efficient serialization
 - **Garbage Collection**: Close audio clips after duration calculation in dry-run
 
+### GPU Acceleration (`--gpu`)
+- Uses NVIDIA NVENC H.264 encoder (`h264_nvenc`) instead of CPU-based `libx264`
+- Requires an NVIDIA GPU with NVENC support (GTX 600+ / Quadro K series+)
+- FFmpeg must be compiled with NVENC support (the bundled `imageio_ffmpeg` binary includes it)
+- NVENC preset `p4` is a good balance; tweak in `build_slideshow()` if needed:
+  - `p1` = fastest / lowest quality
+  - `p7` = slowest / highest quality
+- CQ value `23` produces visually transparent quality; lower for archival, higher for smaller files
+
 ### Parallel Processing
 - **Export**: MoviePy uses multiple threads via `threads=os.cpu_count()`
 - **Photo Processing**: Sequential (to avoid memory explosion with large photo sets)
+
+### Test Builds (`--limit N`)
+- Slices `config.photos` to the first N entries before any processing
+- Dramatically reduces build time for testing effects, crossfades, and music sync
+- Music is still trimmed/looped to fit the shorter video duration
+- Combine with `--gpu` for fastest iteration: `--gpu --limit 10`
 
 ## Extending the System
 
