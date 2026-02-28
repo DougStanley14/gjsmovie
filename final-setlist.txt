@@ -48,13 +48,13 @@ fade_out_duration = 3
 # Leave this section empty (all lines commented) to auto-load
 # ALL music from movie-content/music-playlist/ alphabetically.
 #
-# --- Setlist A order (approx 61 min) ---
+# --- Setlist A order (approx 61 min) ---listed
+01 The Wind.m4a
+2-06 Heart Of Gold.m4a
 07 Here Comes The Sun.m4a
 01 Give A Little Bit.m4a
-2-06 Heart Of Gold.m4a
 05 Into the Mystic.m4a
 08 Sunshine of Your Love.m4a
-02 I Know What I Like (In Your Wardr 1.m4a
 01 Free Fallin'.m4a
 1-20 Baba O'Riley.m4a
 2-01 Heroes.m4a
