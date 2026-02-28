@@ -56,7 +56,7 @@ fade_out_duration = 3
 05 Into the Mystic.m4a
 08 Sunshine of Your Love.m4a
 01 Free Fallin'.m4a
-1-20 Baba O'Riley.m4a
+06 Gettin' In Tune.m4a
 2-01 Heroes.m4a
 2-01 Jumpin' Jack Flash.m4a
 02 Ramblin' Man.m4a

@@ -8,8 +8,9 @@ Copies them into   movie-content/pic-playlist/
 Cherry-picked photos (listed in a text file or via CLI) are placed first
 in the specified order. All remaining photos are shuffled randomly.
 
-Output filenames are sequential starting from 000100, always as .jpg:
-    000100.jpg, 000101.jpg, 000102.jpg, ...
+Output filenames are sequential:
+    - Cherry-picked photos: 000001.jpg, 000002.jpg, 000003.jpg, ...
+    - Remaining photos:   000100.jpg, 000101.jpg, 000102.jpg, ...
 
 HEIC/HEIF files are automatically converted to JPG during copy.
 
@@ -29,7 +30,7 @@ Usage:
     # Clear destination before copying
     python randomize_photos.py --clean
 
-    # Change starting number (default 100)
+    # Change starting number for remaining photos (cherry-picks always start at 1)
     python randomize_photos.py --start 200
 """
 
@@ -201,8 +202,18 @@ def randomize_and_copy(
     print("=" * 60)
 
     heic_converted = 0
+    cherry_start = 1  # Cherry-picks always start at 000001
+    remaining_start = start_number  # Remaining photos start at --start (default 100)
+    
     for i, photo in enumerate(ordered):
-        num = start_number + i
+        if photo in first_photos:
+            # Cherry-picked photos: 000001, 000002, ...
+            num = cherry_start + first_photos.index(photo)
+        else:
+            # Remaining photos: start_number, start_number+1, ...
+            remaining_index = remaining_photos.index(photo)
+            num = remaining_start + remaining_index
+            
         is_heic = photo.suffix.lower() in {".heic", ".heif"}
         out_ext = ".jpg" if is_heic else photo.suffix.lower()
         new_name = f"{num:0{num_width}d}{out_ext}"
@@ -226,15 +237,22 @@ def randomize_and_copy(
 
     if dry_run:
         print(f"\n  Dry run complete — {len(ordered)} photos would be copied.")
-        print(f"  Starting number: {start_number:0{num_width}d}")
-        print(f"  Ending number:   {start_number + len(ordered) - 1:0{num_width}d}")
+        if first_photos:
+            print(f"  Cherry-picks: {cherry_start:0{num_width}d} → {cherry_start + len(first_photos) - 1:0{num_width}d}")
+        if remaining_photos:
+            print(f"  Remaining: {remaining_start:0{num_width}d} → {remaining_start + len(remaining_photos) - 1:0{num_width}d}")
     else:
         logger.info("Copied %d photos to %s", copied, dest_dir)
         if heic_converted:
             logger.info("Converted %d HEIC files to JPG", heic_converted)
-        logger.info("Range: %s → %s",
-                     f"{start_number:0{num_width}d}",
-                     f"{start_number + len(ordered) - 1:0{num_width}d}")
+        if first_photos:
+            logger.info("Cherry-picks: %s → %s",
+                         f"{cherry_start:0{num_width}d}",
+                         f"{cherry_start + len(first_photos) - 1:0{num_width}d}")
+        if remaining_photos:
+            logger.info("Remaining: %s → %s",
+                         f"{remaining_start:0{num_width}d}",
+                         f"{remaining_start + len(remaining_photos) - 1:0{num_width}d}")
 
     print()
 
