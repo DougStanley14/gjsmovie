@@ -138,14 +138,62 @@ Processed photo clips are cached in `.slideshow_cache/` so if a render is interr
 ```
 project-root/
 ├── movie-content/
-│   ├── pic-playlist/        # Source photos (JPG, PNG, HEIC, etc.)
-│   └── music-playlist/      # Source music files (M4A, MP3, WAV, etc.)
-├── final-setlist.txt        # Editable config — controls everything
-├── output/                  # Generated video saved here
-├── .slideshow_cache/        # Cached processed clips (gitignored)
-├── slideshow_builder.py     # Main application
-└── requirements.txt         # Python dependencies
+│   ├── pic-playlist/           # Randomized photos used by slideshow
+│   │   └── nonrandom/          # Original base photos (put them here)
+│   └── music-playlist/         # Source music files (M4A, MP3, WAV, etc.)
+├── final-setlist.txt           # Editable config — controls everything
+├── output/                     # Generated video saved here
+├── .slideshow_cache/           # Cached processed clips (gitignored)
+├── slideshow_builder.py        # Main slideshow application
+├── randomize_photos.py         # Photo randomizer/renamer
+└── requirements.txt            # Python dependencies
 ```
+
+---
+
+## Photo Randomizer
+
+`randomize_photos.py` copies photos from `movie-content/pic-playlist/nonrandom/` into `movie-content/pic-playlist/`, randomizing their order and renaming them sequentially starting from `000100`.
+
+### Workflow
+
+1. Place your base photos in `movie-content/pic-playlist/nonrandom/`
+2. Run the randomizer
+3. Run the slideshow builder
+
+### Usage
+
+```bash
+# Randomize all photos
+python randomize_photos.py
+
+# Preview without copying
+python randomize_photos.py --dry-run
+
+# Cherry-pick specific photos to appear first
+python randomize_photos.py --first "IMG_001.jpg, family.png"
+
+# Cherry-pick from a text file (one filename per line)
+python randomize_photos.py --first-file cherry_picks.txt
+
+# Clean destination before copying (removes old numbered photos)
+python randomize_photos.py --clean
+
+# Change starting number
+python randomize_photos.py --start 200
+
+# Reproducible order with a seed
+python randomize_photos.py --seed 42
+```
+
+| Flag | Description |
+|------|-------------|
+| `--first "a.jpg, b.jpg"` | Comma-separated filenames to place at the front of the deck |
+| `--first-file PATH` | Text file with cherry-pick filenames (one per line, `#` comments) |
+| `--start N` | Starting number for output filenames (default: 100) |
+| `--dry-run` | Preview randomized order without copying |
+| `--clean` | Remove existing photos from destination before copying |
+| `--seed N` | Random seed for reproducible ordering |
 
 ---
 
