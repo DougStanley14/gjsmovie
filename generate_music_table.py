@@ -4,6 +4,7 @@ Generate music-list-table.txt from music-list.txt using mutagen for metadata.
 Outputs a pipe-delimited markdown-style table.
 """
 
+import argparse
 import os
 import re
 import sys
@@ -123,9 +124,23 @@ def sanitize(val):
 
 
 def main():
-    base_dir = Path(r'd:\greg-memorial\gjsmovie\movie-content')
+    parser = argparse.ArgumentParser(description='Generate music-list-table.txt from music-list.txt using mutagen for metadata.')
+    parser.add_argument('folder', nargs='?', 
+                       default='d:\\greg-memorial\\gjsmovie\\movie-content',
+                       help='Folder containing music-list.txt and where music-list-table.txt will be written')
+    parser.add_argument('-o', '--output', 
+                       default='music-list-table.txt',
+                       help='Output filename (default: music-list-table.txt)')
+    
+    args = parser.parse_args()
+    
+    base_dir = Path(args.folder)
     list_file = base_dir / 'music-list.txt'
-    output_file = base_dir / 'music-list-table.txt'
+    output_file = base_dir / args.output
+
+    if not list_file.exists():
+        print(f"ERROR: music-list.txt not found in {base_dir}")
+        sys.exit(1)
 
     with open(list_file, 'r', encoding='utf-8') as f:
         lines = [line.strip() for line in f if line.strip()]
