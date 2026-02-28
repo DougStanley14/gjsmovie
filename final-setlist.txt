@@ -1,0 +1,66 @@
+# ============================================================
+# SLIDESHOW FINAL SETLIST - Edit this file to customize output
+# ============================================================
+# Lines starting with # are comments and are ignored.
+# Leave a section blank (no uncommented lines) to use defaults.
+#
+# This file controls photo order, music order, Ken Burns
+# effects, crossfade timing, and all output settings for the
+# slideshow video generator (slideshow_builder.py).
+
+[SETTINGS]
+output_filename = brothers_slideshow.mp4
+output_resolution = 1920x1080
+default_photo_duration = 5
+photo_duration_variance = 0.5
+crossfade_duration = 1.0
+ken_burns_intensity = medium
+ken_burns_style = random
+video_fps = 24
+fade_in_duration = 2
+fade_out_duration = 3
+
+[PHOTOS]
+# List photos in desired order, one per line.
+# Format: filename.jpg
+# OR:     filename.jpg | duration=8 | effect=zoom_in
+#
+# Supported effects: zoom_in, zoom_out, pan_left, pan_right,
+#                    pan_up, pan_down, random
+#
+# Leave this section empty (all lines commented) to auto-load
+# ALL photos from movie-content/pic-playlist/ alphabetically.
+#
+# Example overrides:
+# 00000023.jpg | duration=8 | effect=zoom_in
+# 00000027.jpg
+# 008.JPG | duration=10 | effect=pan_right
+
+[MUSIC]
+# List music files in playback order, one per line.
+# Format: filename.m4a
+# OR:     filename.m4a | fade_in=2 | fade_out=3
+#
+# The app will sequence all listed tracks to fill the video
+# duration. If music is longer than video, it trims with a
+# fade out. If shorter, it loops from the beginning.
+#
+# Leave this section empty (all lines commented) to auto-load
+# ALL music from movie-content/music-playlist/ alphabetically.
+#
+# --- Setlist A order (approx 61 min) ---
+07 Here Comes The Sun.m4a
+01 Give A Little Bit.m4a
+2-06 Heart Of Gold.m4a
+05 Into the Mystic.m4a
+08 Sunshine of Your Love.m4a
+02 I Know What I Like (In Your Wardr 1.m4a
+01 Free Fallin'.m4a
+1-20 Baba O'Riley.m4a
+2-01 Heroes.m4a
+2-01 Jumpin' Jack Flash.m4a
+02 Ramblin' Man.m4a
+03 The Weight.m4a
+09 (What's So Funny 'Bout) Peace, Lo.mp3
+2-19 Long May You Run.m4a
+2-09 Wild Horses.m4a

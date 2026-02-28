@@ -208,3 +208,7 @@ __marimo__/
 
 # Movie content folder
 movie-content/
+
+# Slideshow builder output and cache
+output/
+.slideshow_cache/
