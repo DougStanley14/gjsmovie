@@ -11,7 +11,7 @@
 [SETTINGS]
 output_filename = brothers_slideshow.mp4
 output_resolution = 1920x1080
-default_photo_duration = 8.85
+default_photo_duration = 9.17
 photo_duration_variance = 0.5
 crossfade_duration = 1.0
 ken_burns_intensity = medium
@@ -50,17 +50,17 @@ fade_out_duration = 3
 #
 # --- Setlist A order (approx 61 min) ---listed
 01 The Wind.m4a
-2-06 Heart Of Gold.m4a
 07 Here Comes The Sun.m4a
-01 Walk Don't Run.m4a
-05 Into the Mystic.m4a
-06 Sweet Virginia.m4a
+2-06 Heart Of Gold.m4a
 1-01 Make Me Smile.m4a
-06 Gettin' In Tune.m4a
-2-01 Heroes.m4a
-07 Sloop John B.m4a
-10 The Actor (Full Version).m4a
-2-07 Love, Reign O'er Me.m4a
+04 I've Seen All Good People a. Your Move b. All Good People.mp3
+01 - Carry On.mp3
+06 Sweet Virginia.m4a
 03 The Weight.m4a
-2-19 Long May You Run.m4a
+18 - Feel Flows.flac
+05 Into the Mystic.m4a
+1-16 See Me Feel Me.m4a
+The Rain Song.mp3
 2-09 Wild Horses.m4a
+2-19 Long May You Run.m4a
+
