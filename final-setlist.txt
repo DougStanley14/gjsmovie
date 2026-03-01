@@ -52,15 +52,15 @@ fade_out_duration = 3
 01 The Wind.m4a
 2-06 Heart Of Gold.m4a
 07 Here Comes The Sun.m4a
-01 Give A Little Bit.m4a
+10 Pure and Easy.m4a
+01 Walk Don't Run.m4a
 05 Into the Mystic.m4a
-08 Sunshine of Your Love.m4a
-01 Free Fallin'.m4a
+06 Sweet Virginia.m4a
 06 Gettin' In Tune.m4a
 2-01 Heroes.m4a
-2-01 Jumpin' Jack Flash.m4a
-02 Ramblin' Man.m4a
+07 Sloop John B.m4a
+10 The Actor (Full Version).m4a
 03 The Weight.m4a
-09 (What's So Funny 'Bout) Peace, Lo.mp3
+02 Alison.mp3
 2-19 Long May You Run.m4a
 2-09 Wild Horses.m4a

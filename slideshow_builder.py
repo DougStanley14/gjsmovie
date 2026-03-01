@@ -289,87 +289,79 @@ def _pick_style(style_setting: str) -> str:
     return style_setting
 
 
-def apply_ken_burns(image_array: np.ndarray, duration: float, fps: int,
-                    target_w: int, target_h: int,
-                    style: str, intensity_name: str) -> List[np.ndarray]:
+def ken_burns_at_t(image_array: np.ndarray, t_norm: float,
+                   target_w: int, target_h: int,
+                   style: str, intensity_name: str) -> np.ndarray:
     """
-    Generate per-frame Ken Burns transforms for a still image.
-
-    Returns a list of numpy arrays (one per frame), each sized (target_h, target_w, 3).
-    The source image is expected to be oversized relative to the target so the
-    effect can crop/pan without revealing black borders.
+    Compute a single Ken Burns frame at normalised time t_norm ∈ [0.0, 1.0].
+    Called on-demand by MoviePy during export — no frames are pre-allocated.
+    The source image must already be oversized relative to the target.
     """
     travel = KEN_BURNS_INTENSITIES.get(intensity_name, 0.12)
-    n_frames = max(int(duration * fps), 1)
     src_h, src_w = image_array.shape[:2]
-    frames: List[np.ndarray] = []
+    t = max(0.0, min(t_norm, 1.0))
 
-    for i in range(n_frames):
-        t = i / max(n_frames - 1, 1)  # 0 → 1
+    if style == "zoom_in":
+        # Start wide, end narrow
+        scale = 1.0 - travel * t
+        crop_w = int(src_w * scale)
+        crop_h = int(src_h * scale)
+        x0 = (src_w - crop_w) // 2
+        y0 = (src_h - crop_h) // 2
 
-        if style == "zoom_in":
-            # Start wide, end narrow
-            scale = 1.0 - travel * t
-            crop_w = int(src_w * scale)
-            crop_h = int(src_h * scale)
-            x0 = (src_w - crop_w) // 2
-            y0 = (src_h - crop_h) // 2
+    elif style == "zoom_out":
+        # Start narrow, end wide
+        scale = 1.0 - travel * (1 - t)
+        crop_w = int(src_w * scale)
+        crop_h = int(src_h * scale)
+        x0 = (src_w - crop_w) // 2
+        y0 = (src_h - crop_h) // 2
 
-        elif style == "zoom_out":
-            # Start narrow, end wide
-            scale = 1.0 - travel * (1 - t)
-            crop_w = int(src_w * scale)
-            crop_h = int(src_h * scale)
-            x0 = (src_w - crop_w) // 2
-            y0 = (src_h - crop_h) // 2
+    elif style == "pan_left":
+        crop_w = int(src_w * (1.0 - travel))
+        crop_h = src_h
+        max_offset = src_w - crop_w
+        x0 = int(max_offset * (1 - t))
+        y0 = 0
 
-        elif style == "pan_left":
-            crop_w = int(src_w * (1.0 - travel))
-            crop_h = src_h
-            max_offset = src_w - crop_w
-            x0 = int(max_offset * (1 - t))
-            y0 = 0
+    elif style == "pan_right":
+        crop_w = int(src_w * (1.0 - travel))
+        crop_h = src_h
+        max_offset = src_w - crop_w
+        x0 = int(max_offset * t)
+        y0 = 0
 
-        elif style == "pan_right":
-            crop_w = int(src_w * (1.0 - travel))
-            crop_h = src_h
-            max_offset = src_w - crop_w
-            x0 = int(max_offset * t)
-            y0 = 0
+    elif style == "pan_up":
+        crop_w = src_w
+        crop_h = int(src_h * (1.0 - travel))
+        max_offset = src_h - crop_h
+        x0 = 0
+        y0 = int(max_offset * (1 - t))
 
-        elif style == "pan_up":
-            crop_w = src_w
-            crop_h = int(src_h * (1.0 - travel))
-            max_offset = src_h - crop_h
-            x0 = 0
-            y0 = int(max_offset * (1 - t))
+    elif style == "pan_down":
+        crop_w = src_w
+        crop_h = int(src_h * (1.0 - travel))
+        max_offset = src_h - crop_h
+        x0 = 0
+        y0 = int(max_offset * t)
 
-        elif style == "pan_down":
-            crop_w = src_w
-            crop_h = int(src_h * (1.0 - travel))
-            max_offset = src_h - crop_h
-            x0 = 0
-            y0 = int(max_offset * t)
+    else:
+        # Fallback — no motion
+        crop_w, crop_h = src_w, src_h
+        x0, y0 = 0, 0
 
-        else:
-            # Fallback — no motion
-            crop_w, crop_h = src_w, src_h
-            x0, y0 = 0, 0
+    # Clamp bounds
+    crop_w = max(crop_w, 1)
+    crop_h = max(crop_h, 1)
+    x0 = max(0, min(x0, src_w - crop_w))
+    y0 = max(0, min(y0, src_h - crop_h))
 
-        # Clamp bounds
-        crop_w = max(crop_w, 1)
-        crop_h = max(crop_h, 1)
-        x0 = max(0, min(x0, src_w - crop_w))
-        y0 = max(0, min(y0, src_h - crop_h))
+    cropped = image_array[y0:y0 + crop_h, x0:x0 + crop_w]
 
-        cropped = image_array[y0:y0 + crop_h, x0:x0 + crop_w]
-
-        # Resize to target via Pillow (high quality)
-        pil_img = Image.fromarray(cropped)
-        pil_img = pil_img.resize((target_w, target_h), Image.LANCZOS)
-        frames.append(np.array(pil_img))
-
-    return frames
+    # Resize to target via Pillow (high quality)
+    pil_img = Image.fromarray(cropped)
+    pil_img = pil_img.resize((target_w, target_h), Image.LANCZOS)
+    return np.array(pil_img)
 
 
 # ---------------------------------------------------------------------------
@@ -435,15 +427,14 @@ def load_and_prepare_image(photo_path: Path, target_w: int, target_h: int,
 # ---------------------------------------------------------------------------
 # Cache helpers
 # ---------------------------------------------------------------------------
-def _cache_key(photo_path: Path, duration: float, style: str,
-               intensity: str, target_w: int, target_h: int, fps: int) -> str:
-    """Deterministic cache key for a processed photo clip."""
-    raw = f"{photo_path}|{duration}|{style}|{intensity}|{target_w}x{target_h}|{fps}"
+def _cache_key(photo_path: Path, intensity: str, target_w: int, target_h: int) -> str:
+    """Deterministic cache key for a prepared (pre-processed) photo image."""
+    raw = f"{photo_path}|{intensity}|{target_w}x{target_h}"
     return hashlib.md5(raw.encode()).hexdigest()
 
 
-def _load_cached_frames(cache_key: str) -> Optional[List[np.ndarray]]:
-    """Try to load cached frames from disk."""
+def _load_cached_image(cache_key: str) -> Optional[np.ndarray]:
+    """Try to load a cached prepared image from disk."""
     cache_file = CACHE_DIR / f"{cache_key}.pkl"
     if cache_file.exists():
         try:
@@ -454,13 +445,13 @@ def _load_cached_frames(cache_key: str) -> Optional[List[np.ndarray]]:
     return None
 
 
-def _save_cached_frames(cache_key: str, frames: List[np.ndarray]):
-    """Save processed frames to disk cache."""
+def _save_cached_image(cache_key: str, image: np.ndarray):
+    """Save a prepared image to disk cache."""
     CACHE_DIR.mkdir(parents=True, exist_ok=True)
     cache_file = CACHE_DIR / f"{cache_key}.pkl"
     try:
         with open(cache_file, "wb") as f:
-            pickle.dump(frames, f, protocol=pickle.HIGHEST_PROTOCOL)
+            pickle.dump(image, f, protocol=pickle.HIGHEST_PROTOCOL)
     except Exception as exc:
         logger.debug("Could not write cache for %s: %s", cache_key, exc)
 
@@ -471,8 +462,10 @@ def _save_cached_frames(cache_key: str, frames: List[np.ndarray]):
 def build_photo_clips(config: SlideshowConfig, use_cache: bool = True
                       ) -> List[ImageClip]:
     """
-    Build a list of MoviePy ImageClips with Ken Burns effect applied.
-    Returns clips ready for crossfade assembly.
+    Build a list of MoviePy ImageClips with Ken Burns effect applied on-demand.
+    Images are loaded lazily during export rather than pre-loaded into memory,
+    so arbitrarily large photo sets can be handled without hitting RAM limits.
+    At most 2 prepared images live in RAM at once (during crossfade overlaps).
     """
     settings = config.settings
     tw, th = settings.output_width, settings.output_height
@@ -497,33 +490,35 @@ def build_photo_clips(config: SlideshowConfig, use_cache: bool = True
         logger.info("Processing photo %d/%d: %s — %s, %.1fs",
                      idx, total, photo.path.name, style, base_dur)
 
-        # Try cache
-        ck = _cache_key(photo.path, base_dur, style, intensity, tw, th, fps)
-        cached = _load_cached_frames(ck) if use_cache else None
+        ck = _cache_key(photo.path, intensity, tw, th)
 
-        if cached is not None:
-            logger.debug("  (loaded from cache)")
-            frames = cached
-        else:
-            img_array = load_and_prepare_image(photo.path, tw, th, intensity)
-            frames = apply_ken_burns(img_array, base_dur, fps, tw, th, style, intensity)
-            if use_cache:
-                _save_cached_frames(ck, frames)
-
-        # Build clip from frames
-        def make_frame_func(frame_list, _fps):
-            """Return a function t→frame for ImageClip."""
-            n = len(frame_list)
+        # Build a lazy frame function — the prepared image is loaded on first
+        # frame request and held only for the life of this clip's rendering.
+        def make_frame_func(path, dur, sty, intens, _tw, _th, cache_key, _use_cache):
+            _img = [None]  # mutable cell; populated on first access
             def get_frame(t):
-                fi = int(t * _fps)
-                fi = min(fi, n - 1)
-                return frame_list[fi]
+                if _img[0] is None:
+                    cached = _load_cached_image(cache_key) if _use_cache else None
+                    if cached is not None:
+                        logger.debug("  (cache hit: %s)", path.name)
+                        _img[0] = cached
+                    else:
+                        _img[0] = load_and_prepare_image(path, _tw, _th, intens)
+                        if _use_cache:
+                            _save_cached_image(cache_key, _img[0])
+                t_norm = min(t / max(dur, 1e-6), 1.0)
+                return ken_burns_at_t(_img[0], t_norm, _tw, _th, sty, intens)
             return get_frame
 
-        clip = ImageClip(frames[0], duration=base_dur)
+        frame_func = make_frame_func(
+            photo.path, base_dur, style, intensity, tw, th, ck, use_cache
+        )
+
+        # Black placeholder to set clip dimensions without loading the image
+        placeholder = np.zeros((th, tw, 3), dtype=np.uint8)
+        clip = ImageClip(placeholder, duration=base_dur)
         clip = clip.with_fps(fps)
-        # Replace the frame getter so it uses our Ken Burns frames
-        clip = clip.with_updated_frame_function(make_frame_func(frames, fps))
+        clip = clip.with_updated_frame_function(frame_func)
 
         clips.append(clip)
 
