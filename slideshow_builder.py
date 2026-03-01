@@ -11,6 +11,7 @@ Usage:
 """
 
 import argparse
+import concurrent.futures
 import hashlib
 import json
 import logging
@@ -20,6 +21,7 @@ import random
 import re
 import sys
 import tempfile
+import threading
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -641,6 +643,74 @@ def build_audio_track(config: SlideshowConfig, video_duration: float) -> Optiona
 
 
 # ---------------------------------------------------------------------------
+# Pre-fetching Frame Buffer (Producer-Consumer)
+# ---------------------------------------------------------------------------
+def prefetch_clip(clip, num_workers=16, buffer_size=32):
+    """
+    Wrap a clip with a pre-fetching frame buffer.
+
+    Spawns a ThreadPoolExecutor that computes upcoming frames in parallel,
+    placing results into a dict so the GPU encoder is constantly fed.
+    Pillow's LANCZOS resize releases the GIL, so real parallelism is achieved.
+
+    Args:
+        clip:        The final composite VideoClip to wrap.
+        num_workers: Number of parallel threads for frame generation.
+        buffer_size: How many frames ahead to pre-compute.
+
+    Returns:
+        A new clip whose get_frame pulls from the pre-fetch buffer.
+    """
+    fps = clip.fps
+    total_frames = int(clip.duration * fps)
+    original_get_frame = clip.get_frame
+
+    executor = concurrent.futures.ThreadPoolExecutor(max_workers=num_workers)
+    futures = {}           # frame_index → Future
+    lock = threading.Lock()
+    next_submit = [0]      # mutable cell: next frame index to submit
+
+    logger.info("Pre-fetch buffer: %d workers, %d-frame lookahead, %d total frames",
+                num_workers, buffer_size, total_frames)
+
+    def _submit_ahead(current_idx):
+        """Submit frame computations up to buffer_size ahead of current_idx."""
+        with lock:
+            target = min(current_idx + buffer_size, total_frames)
+            while next_submit[0] < target:
+                idx = next_submit[0]
+                if idx not in futures:
+                    t = idx / fps
+                    futures[idx] = executor.submit(original_get_frame, t)
+                next_submit[0] += 1
+
+    def prefetched_get_frame(t):
+        frame_idx = int(round(t * fps))
+        frame_idx = min(frame_idx, total_frames - 1)
+
+        # Kick off pre-computation of upcoming frames
+        _submit_ahead(frame_idx)
+
+        # Retrieve this frame (blocks until ready if still computing)
+        with lock:
+            future = futures.pop(frame_idx, None)
+
+        if future is not None:
+            return future.result()
+        else:
+            # Fallback: compute directly (shouldn't normally happen)
+            return original_get_frame(t)
+
+    # Seed the initial buffer
+    _submit_ahead(0)
+
+    wrapped = clip.with_updated_frame_function(prefetched_get_frame)
+    # Stash the executor on the clip so we can shut it down after export
+    wrapped._prefetch_executor = executor
+    return wrapped
+
+
+# ---------------------------------------------------------------------------
 # Final Assembly
 # ---------------------------------------------------------------------------
 def build_slideshow(config: SlideshowConfig, use_cache: bool = True,
@@ -689,6 +759,12 @@ def build_slideshow(config: SlideshowConfig, use_cache: bool = True,
     else:
         logger.warning("Proceeding with silent video (no audio)")
 
+    # Wrap with pre-fetching frame buffer for parallel frame generation
+    logger.info("=" * 60)
+    logger.info("ENABLING PRE-FETCH FRAME BUFFER")
+    logger.info("=" * 60)
+    video = prefetch_clip(video, num_workers=16, buffer_size=32)
+
     # Export
     logger.info("=" * 60)
     logger.info("EXPORTING VIDEO")
@@ -707,7 +783,7 @@ def build_slideshow(config: SlideshowConfig, use_cache: bool = True,
                 audio_codec="aac",
                 ffmpeg_params=["-preset", "p4", "-rc", "vbr",
                               "-cq", "23", "-b:v", "0"],
-                threads=os.cpu_count() or 4,
+                threads=16,
                 logger="bar",
             )
             encoder_used = "h264_nvenc (GPU)"
@@ -721,7 +797,7 @@ def build_slideshow(config: SlideshowConfig, use_cache: bool = True,
                 codec="libx264",
                 audio_codec="aac",
                 preset="medium",
-                threads=os.cpu_count() or 4,
+                threads=16,
                 logger="bar",
             )
     else:
@@ -731,9 +807,14 @@ def build_slideshow(config: SlideshowConfig, use_cache: bool = True,
             codec="libx264",
             audio_codec="aac",
             preset="medium",
-            threads=os.cpu_count() or 4,
+            threads=16,
             logger="bar",
         )
+
+    # Shut down the pre-fetch executor
+    if hasattr(video, '_prefetch_executor'):
+        video._prefetch_executor.shutdown(wait=False)
+        logger.debug("Pre-fetch executor shut down")
 
     elapsed = time.time() - t0
     logger.info("=" * 60)
