@@ -11,7 +11,7 @@
 [SETTINGS]
 output_filename = brothers_slideshow.mp4
 output_resolution = 1920x1080
-default_photo_duration = 9.17
+default_photo_duration = auto
 photo_duration_variance = 0.5
 crossfade_duration = 1.0
 ken_burns_intensity = medium

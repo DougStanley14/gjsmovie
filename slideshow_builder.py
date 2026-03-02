@@ -183,7 +183,10 @@ def _parse_setting(settings: SlideshowSettings, line: str):
         else:
             logger.warning("Invalid resolution format '%s', using default 1920x1080", value)
     elif key == "default_photo_duration":
-        settings.default_photo_duration = float(value)
+        if value.lower() == "auto":
+            settings.default_photo_duration = -1.0
+        else:
+            settings.default_photo_duration = float(value)
     elif key == "photo_duration_variance":
         settings.photo_duration_variance = float(value)
     elif key == "crossfade_duration":
@@ -891,10 +894,20 @@ def dry_run(config: SlideshowConfig):
               f"({total_music_dur / 60:.1f} minutes)")
         if total_music_dur >= estimated_video_dur:
             print("  → Music will be trimmed to fit video length")
+            final_duration = estimated_video_dur
         else:
             print("  → Music will loop to fill video length")
+            final_duration = estimated_video_dur
     else:
         print("\n  (Could not determine music durations)")
+        final_duration = estimated_video_dur
+        
+    print(f"\n  ============================================================")
+    print(f"  FINAL ESTIMATES:")
+    print(f"  Total Photos      : {len(config.photos)}")
+    print(f"  Total Audio Tracks: {len(config.music)}")
+    print(f"  Final Video Length: {final_duration:.1f}s ({final_duration / 60:.1f} minutes)")
+    print(f"  ============================================================")
 
     print("\n" + "=" * 60)
     print("  Dry run complete — no video rendered.")
@@ -936,6 +949,12 @@ def main():
         metavar="N",
         help="Only use the first N photos (for quick test builds)"
     )
+    parser.add_argument(
+        "--ffmpeg",
+        action="store_true",
+        help="Use pure FFmpeg pipeline (zoompan Ken Burns, xfade crossfades) — "
+             "dramatically faster, zero Python overhead during render"
+    )
     args = parser.parse_args()
 
     setlist_path = Path(args.setlist)
@@ -958,6 +977,62 @@ def main():
         sys.exit(1)
     if not config.music:
         logger.warning("No music found. Will generate a silent video.")
+        
+    # Auto-calculate default photo duration based on music length if requested (-1.0)
+    if config.settings.default_photo_duration == -1.0 and config.music:
+        try:
+            total_music_dur = 0.0
+            
+            # Use ffmpeg for duration check if available to avoid loading moviepy
+            try:
+                from ffmpeg_builder import _get_duration
+                for m in config.music:
+                    try:
+                        total_music_dur += _get_duration(m.path)
+                    except Exception as e:
+                        logger.warning("Could not read duration for %s with ffmpeg: %s", m.path.name, e)
+            except ImportError:
+                # Fallback to moviepy if ffmpeg_builder is not available
+                from moviepy.editor import AudioFileClip
+                for m in config.music:
+                    try:
+                        aclip = AudioFileClip(str(m.path))
+                        total_music_dur += aclip.duration
+                        aclip.close()
+                    except Exception as e:
+                        logger.warning("Could not read duration for %s: %s", m.path.name, e)
+            
+            if total_music_dur > 0:
+                # Formula: total_time = (num_photos * default_duration) - (num_crossfades * crossfade_duration)
+                # Therefore: default_duration = (total_time + (num_crossfades * crossfade_duration)) / num_photos
+                num_photos = len(config.photos)
+                num_crossfades = max(0, num_photos - 1)
+                
+                # Account for photos that have manual duration overrides
+                custom_durations = 0.0
+                num_auto_photos = 0
+                
+                for p in config.photos:
+                    if p.duration is not None:
+                        custom_durations += p.duration
+                    else:
+                        num_auto_photos += 1
+                        
+                if num_auto_photos > 0:
+                    remaining_time = total_music_dur - custom_durations + (num_crossfades * config.settings.crossfade_duration)
+                    calc_dur = max(0.5, remaining_time / num_auto_photos)
+                    config.settings.default_photo_duration = round(calc_dur, 2)
+                    logger.info("Auto-calculated default photo duration: %.2fs based on %.1fs music", 
+                                config.settings.default_photo_duration, total_music_dur)
+                else:
+                    logger.warning("All photos have custom durations, cannot auto-calculate default duration")
+                    config.settings.default_photo_duration = 5.0 # fallback
+            else:
+                logger.warning("Could not determine total music duration, falling back to 5.0s per photo")
+                config.settings.default_photo_duration = 5.0
+        except Exception as e:
+            logger.error("Failed to auto-calculate photo duration: %s. Falling back to 5.0s", e)
+            config.settings.default_photo_duration = 5.0
 
     # Print summary
     logger.info("Loaded %d photos, %d music tracks", len(config.photos), len(config.music))
@@ -970,7 +1045,14 @@ def main():
                 config.settings.ken_burns_style,
                 config.settings.ken_burns_intensity)
 
-    if args.dry_run:
+    if args.ffmpeg:
+        # Pure FFmpeg pipeline (Option 3: "Nuclear Option")
+        from ffmpeg_builder import build_slideshow_ffmpeg, dry_run as ffmpeg_dry_run
+        if args.dry_run:
+            ffmpeg_dry_run(config)
+        else:
+            build_slideshow_ffmpeg(config, use_gpu=args.gpu)
+    elif args.dry_run:
         dry_run(config)
     else:
         build_slideshow(config, use_cache=not args.no_cache,

@@ -243,6 +243,70 @@ depending on resolution and GPU generation.
 - Music is still trimmed/looped to fit the shorter video duration
 - Combine with `--gpu` for fastest iteration: `--gpu --limit 10`
 
+## FFmpeg-Native Pipeline (`--ffmpeg`)
+
+The `--ffmpeg` flag activates a completely different render pipeline implemented
+in `ffmpeg_builder.py`.  Instead of generating frames in Python (Pillow/NumPy)
+and feeding them to MoviePy, the entire video is produced by FFmpeg
+subprocesses with **zero Python overhead during render**.
+
+### Why It Exists (Option 3: "Nuclear Option")
+The original MoviePy pipeline is CPU-bound on single-thread Pillow resizes.
+Even with the pre-fetch buffer (Option 2), the bottleneck is Python's per-frame
+overhead.  The FFmpeg pipeline eliminates this entirely.
+
+### Architecture
+
+```
+Setlist Parser → Parallel zoompan clips → Batched xfade → Audio → Final Encode
+```
+
+### Stage 1: Parallel Ken Burns Clip Generation
+- Each photo is processed by its own `ffmpeg` subprocess
+- `PARALLEL_CLIP_WORKERS` (default: `cpu_count // 2`) run concurrently
+- Each clip uses a complex filtergraph:
+  1. **Background branch**: scale-to-cover → crop → gaussian blur (σ=40) → darken
+  2. **Foreground branch**: scale-to-fit (preserves aspect ratio)
+  3. **Overlay**: foreground centred on blurred background
+  4. **zoompan**: Ken Burns motion applied to the composite
+- Output: individual `.mp4` clips (ultrafast/crf 17 intermediates)
+
+### Stage 2: Batched xfade Crossfade Assembly
+- FFmpeg `xfade` filter chains clips with fade transitions
+- Filtergraph written to a script file via `-filter_complex_script` to avoid
+  Windows 32 kB command-line limit
+- For large photo sets (>40 clips), clips are processed in batches of
+  `XFADE_BATCH_SIZE`, then batches are joined with xfade at the seams
+
+### Stage 3: Audio Track Assembly
+- Uses FFmpeg concat demuxer to join music tracks
+- Loops playlist if shorter than video duration
+- Applies fade-out via `afade` filter
+- Output: single `.m4a` file
+
+### Stage 4: Final Encode (merged pass)
+- Global video fades (`fade=in`, `fade=out`) applied here
+- Audio muxed in the same pass
+- Production-quality encoding: `libx264 -crf 18` or `h264_nvenc -cq 23`
+- `-movflags +faststart` for web-friendly MP4
+
+### Key Design Decisions
+- **Intermediates use ultrafast/crf 17**: Fast to write, near-lossless; only the
+  final encode uses production settings — minimises quality loss from
+  multi-pass transcoding
+- **ThreadPoolExecutor for parallelism**: Each worker runs a separate `ffmpeg`
+  process, so GIL is irrelevant — true parallelism
+- **Batched xfade**: Prevents massive filtergraphs that exceed command-line
+  limits or exhaust FFmpeg's memory
+
+### Usage
+```bash
+python slideshow_builder.py --ffmpeg                  # CPU encode
+python slideshow_builder.py --ffmpeg --gpu             # GPU encode
+python slideshow_builder.py --ffmpeg --gpu --limit 5   # quick test
+python ffmpeg_builder.py --gpu --limit 5               # standalone
+```
+
 ## Extending the System
 
 ### Adding New Ken Burns Styles

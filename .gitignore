@@ -212,3 +212,4 @@ movie-content/
 # Slideshow builder output and cache
 output/
 .slideshow_cache/
+.ffmpeg_temp/
