@@ -161,13 +161,14 @@ class MusicEntry:
 2. **Crossfade Assembly**: Call `assemble_with_crossfades()`
 3. **Global Fades**: Apply `CrossFadeIn` and `CrossFadeOut` in single `with_effects()` call
 4. **Audio Track**: Call `build_audio_track()` and attach if available
-5. **Export**: `write_videofile()` with H.264 video + AAC audio
+5. **Pre-fetch Buffer**: Wrap the final composite with `prefetch_clip()` to generate frames in parallel
+6. **Export**: `write_videofile()` with H.264 video + AAC audio
 
 **Export Parameters (CPU mode — default)**:
 - `codec="libx264"`: Standard H.264 video
 - `audio_codec="aac"`: Universal audio codec
 - `preset="medium"`: Balance of speed and quality
-- `threads=os.cpu_count()`: Parallel encoding
+- `threads=16`: Parallel encoding
 
 **Export Parameters (GPU mode — `--gpu` flag)**:
 - `codec="h264_nvenc"`: NVIDIA NVENC hardware H.264 encoder
@@ -219,8 +220,10 @@ depending on resolution and GPU generation.
 - **Cache Invalidation**: Automatic when any parameter changes (duration, effect, intensity, resolution)
 - **Cache Size**: Each cached clip ≈ `duration × fps × width × height × 3` bytes
 
-### Memory Management
+### Memory Management & Pre-fetching
 - **Frame Streaming**: Generate frames on-demand via custom frame function
+- **Pre-fetch Buffer**: Uses `ThreadPoolExecutor` to calculate upcoming frames in parallel (16 threads, 32-frame lookahead)
+- **Parallel Frame Generation**: Pillow's `LANCZOS` resize releases the GIL, enabling true parallel frame generation
 - **Pickle Protocol**: Use `HIGHEST_PROTOCOL` for efficient serialization
 - **Garbage Collection**: Close audio clips after duration calculation in dry-run
 

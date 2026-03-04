@@ -187,8 +187,8 @@ The `--ffmpeg` flag enables a pure FFmpeg-based processing pipeline that offers 
 | Transitions | MoviePy crossfade | FFmpeg `xfade` filter (batched) |
 | Background | Python compositing | FFmpeg filtergraph |
 | Audio | MoviePy assembly | FFmpeg concat demuxer |
-| Processing | Single-threaded Python | Multi-process FFmpeg |
-| Memory Usage | High (loads all images) | Low (streaming) |
+| Processing | Multi-threaded Python (pre-fetch) | Multi-process FFmpeg |
+| Memory Usage | Moderate (streaming + buffer) | Low (streaming) |
 
 ### FFmpeg Pipeline Features
 
